@@ -1,49 +1,62 @@
 # Satellite-HAP-GS QKD
 
-This project is the new framework for satellite-HAP-GS QKD network modeling.
+This project is the framework for Satellite-HAP-GS QKD network modeling.
 
-The first stage focuses on the common network structure used by both future methods:
+The current implementation focuses on the MILP-ready data model. DRL remains only a future route and is not part of the current implementation target.
 
-- `MILP`: optimization model for link activation, routing, and QKP allocation
-- `DRL`: learning environment for dynamic link selection and reward evaluation
+## Modeling Scope
 
-## Current Scope
-
-The code currently builds the shared nodes, links, demands, key pools, scenarios, and topology graph. It maps the existing source repositories as:
+The framework integrates the two reference codebases kept under `work/`:
 
 - `zhengzhang1106/satellite-QKD`: Satellite-GS QKD source model
 - `zhengzhang1106/HAP-QKD`: HAP-GS QKD source model
-- `SAT-HAP`: topology placeholder; physical/SKR model still needs to be added
 
-## Structure
+The new code under `src/` is organized by network entities rather than by a generic `common` package.
+
+## Current Structure
 
 ```text
 satellite_hap_gs_qkd/
-  docs/
+  work/                         # reference implementations from the two papers
   inputs/
     raw/
     scenarios/
   outputs/
-    milp/
-    drl/
-    figures/
   examples/
   src/
-    common/
-      network_types.py
-      network_node.py
-      quantum_link.py
+    entities/
+      nodes/
+        base_node.py
+        ground_station.py
+        satellite.py
+        air_platform.py
+        node_type.py
+      links/
+        base_link.py
+        satellite_ground_link.py
+        platform_ground_link.py
+        inter_layer_link.py
+        link_type.py
+    qkp/
       key_pool.py
-      network_demand.py
+    services/
+      service_demand.py
+    scenario/
       network_scenario.py
-      models.py
     topology/
     milp/
     drl/
+    common/                      # compatibility exports only
   tests/
 ```
 
-`src/common/models.py` is only a compatibility export file. New code should import from the concept-specific files, such as `common.network_node` and `common.quantum_link`.
+## Unit Convention
+
+- Link classes store physical key generation rate in `bps` through `capacity_by_time` and `key_rate_bps_at(t)`.
+- MILP data exposes both:
+  - `capacity[(link_id, t)]`: bps, kept for compatibility.
+  - `capacity_bits[(link_id, t)]`: bits available within one time slot.
+- Demands and QKP storage are measured in key bits.
 
 ## Quick Checks
 
