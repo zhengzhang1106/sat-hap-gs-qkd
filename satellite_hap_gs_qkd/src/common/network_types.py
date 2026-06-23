@@ -1,23 +1,22 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Tuple
 
-
-class NodeType(str, Enum):
-    GS = "GS"
-    SAT = "SAT"
-    HAP = "HAP"
-
-
-class LinkType(str, Enum):
-    SAT_GS = "SAT-GS"
-    SAT_HAP = "SAT-HAP"
-    HAP_GS = "HAP-GS"
-
+from entities.links.link_type import LinkType
+from entities.nodes.node_type import NodeType
 
 Position = Tuple[float, float, float]
 TimeSlot = int
 NodeId = str
 LinkId = str
 DemandId = str
+
+__all__ = [
+    "DemandId",
+    "LinkId",
+    "LinkType",
+    "NodeId",
+    "NodeType",
+    "Position",
+    "TimeSlot",
+]
