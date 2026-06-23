@@ -3,8 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from common.network_scenario import Scenario
-from common.network_types import DemandId, LinkId, NodeId, TimeSlot
+from scenario.network_scenario import Scenario
+
+DemandId = str
+LinkId = str
+NodeId = str
+TimeSlot = int
 
 
 @dataclass
@@ -31,12 +35,7 @@ class DRLStepResult:
 
 
 class MultiLayerQKDEnv:
-    """
-    Placeholder environment for the future DRL route.
-
-    Intended flow:
-    State -> Agent -> Action -> Routing and QKP Module -> Reward / Next State
-    """
+    """Placeholder environment for the future DRL route."""
 
     def __init__(self, scenario: Scenario):
         scenario.validate()
