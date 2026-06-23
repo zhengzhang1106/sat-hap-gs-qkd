@@ -1,73 +1,71 @@
 from __future__ import annotations
 
-from common.key_pool import KeyPool
-from common.network_demand import Demand
-from common.network_node import Node
-from common.network_scenario import Scenario
-from common.network_types import LinkType, NodeType
-from common.quantum_link import Link
+from entities.links.inter_layer_link import InterLayerLink
+from entities.links.platform_ground_link import PlatformGroundLink
+from entities.links.satellite_ground_link import SatelliteGroundLink
+from entities.nodes.air_platform import HighAltitudePlatform
+from entities.nodes.ground_station import GroundStation
+from entities.nodes.satellite import Satellite
+from qkp.key_pool import KeyPool
+from scenario.network_scenario import Scenario
+from services.service_demand import Demand
 
 
 def build_scenario() -> Scenario:
     time_slots = [0, 1, 2]
 
     nodes = {
-        "GS_A": Node(
+        "GS_A": GroundStation(
             node_id="GS_A",
-            node_type=NodeType.GS,
             position=(0.0, 0.0, 0.0),
             rx_tx_limit=2,
             storage_capacity=5000.0,
         ),
-        "GS_B": Node(
+        "GS_B": GroundStation(
             node_id="GS_B",
-            node_type=NodeType.GS,
             position=(100.0, 0.0, 0.0),
             rx_tx_limit=2,
             storage_capacity=5000.0,
         ),
-        "SAT_1": Node(
+        "SAT_1": Satellite(
             node_id="SAT_1",
-            node_type=NodeType.SAT,
             position=(50.0, 0.0, 567.0),
             rx_tx_limit=1,
             storage_capacity=3000.0,
+            altitude_km=567.0,
             metadata={"orbit": "placeholder"},
         ),
-        "HAP_1": Node(
+        "HAP_1": HighAltitudePlatform(
             node_id="HAP_1",
-            node_type=NodeType.HAP,
             position=(70.0, 0.0, 20.0),
             rx_tx_limit=1,
             storage_capacity=3000.0,
+            altitude_km=20.0,
             metadata={"trajectory": "placeholder"},
         ),
     }
 
     links = {
-        "L_SAT1_GSA": Link(
+        "L_SAT1_GSA": SatelliteGroundLink(
             link_id="L_SAT1_GSA",
             source="SAT_1",
             target="GS_A",
-            link_type=LinkType.SAT_GS,
             distance_km=570.0,
             capacity_by_time={0: 1000.0, 1: 800.0, 2: 0.0},
             availability_by_time={0: True, 1: True, 2: False},
         ),
-        "L_SAT1_HAP1": Link(
+        "L_SAT1_HAP1": InterLayerLink(
             link_id="L_SAT1_HAP1",
             source="SAT_1",
             target="HAP_1",
-            link_type=LinkType.SAT_HAP,
             distance_km=550.0,
             capacity_by_time={0: 900.0, 1: 900.0, 2: 500.0},
             availability_by_time={0: True, 1: True, 2: True},
         ),
-        "L_HAP1_GSB": Link(
+        "L_HAP1_GSB": PlatformGroundLink(
             link_id="L_HAP1_GSB",
             source="HAP_1",
             target="GS_B",
-            link_type=LinkType.HAP_GS,
             distance_km=75.0,
             capacity_by_time={0: 850.0, 1: 700.0, 2: 650.0},
             availability_by_time={0: True, 1: True, 2: True},
