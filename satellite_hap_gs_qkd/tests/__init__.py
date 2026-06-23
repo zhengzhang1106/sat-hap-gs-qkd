@@ -1,0 +1,2 @@
+"""Minimal framework contract tests."""
+
