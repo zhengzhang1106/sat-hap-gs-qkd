@@ -16,6 +16,7 @@ class MILPInput:
     demand_ids: List[DemandId]
     active_links_by_time: Dict[TimeSlot, List[LinkId]]
     capacity: Dict[Tuple[LinkId, TimeSlot], float]
+    capacity_bits: Dict[Tuple[LinkId, TimeSlot], float]
     demand: Dict[Tuple[DemandId, TimeSlot], float]
     initial_qkp: Dict[LinkId, float]
     slot_duration_seconds: float
@@ -37,12 +38,13 @@ def build_milp_input(scenario: Scenario) -> MILPInput:
     slot_duration_seconds = scenario.get_time_slot_duration_seconds()
 
     capacity = {}
+    capacity_bits = {}
     active_links_by_time = {}
     for t in scenario.time_slots:
         active_links = []
         for link in scenario.links.values():
-            cap = link.capacity_bits_at(t, slot_duration_seconds)
-            capacity[(link.link_id, t)] = cap
+            capacity[(link.link_id, t)] = link.key_rate_bps_at(t)
+            capacity_bits[(link.link_id, t)] = link.capacity_bits_at(t, slot_duration_seconds)
             if link.is_available(t):
                 active_links.append(link.link_id)
         active_links_by_time[t] = active_links
@@ -59,8 +61,8 @@ def build_milp_input(scenario: Scenario) -> MILPInput:
     }
 
     parameters = dict(scenario.parameters)
-    parameters.setdefault("link_key_rate_unit", "bps")
-    parameters.setdefault("milp_capacity_unit", "bits_per_time_slot")
+    parameters.setdefault("capacity_unit", "bps")
+    parameters.setdefault("capacity_bits_unit", "bits_per_time_slot")
     parameters.setdefault("demand_unit", "bits_per_time_slot")
     parameters.setdefault("qkp_unit", "bits")
 
@@ -72,6 +74,7 @@ def build_milp_input(scenario: Scenario) -> MILPInput:
         demand_ids=list(scenario.demands.keys()),
         active_links_by_time=active_links_by_time,
         capacity=capacity,
+        capacity_bits=capacity_bits,
         demand=demand,
         initial_qkp=initial_qkp,
         slot_duration_seconds=slot_duration_seconds,
