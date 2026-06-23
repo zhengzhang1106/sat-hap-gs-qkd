@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from common.network_demand import Demand
-from common.network_scenario import Scenario
-from common.quantum_link import Link
-from topology.source_adapters import (
+from adapters.source_adapters import (
     HAP_QKD_REPO,
     SATELLITE_QKD_REPO,
     build_ground_station_node,
@@ -14,9 +11,12 @@ from topology.source_adapters import (
     build_sat_hap_placeholder_link,
     build_satellite_node,
 )
+from entities.links.base_link import BaseLink
+from scenario.network_scenario import Scenario
+from services.service_demand import Demand
 
 
-def _add_bidirectional_link(links: dict[str, Link], forward: Link, reverse: Link) -> None:
+def _add_bidirectional_link(links: dict[str, BaseLink], forward: BaseLink, reverse: BaseLink) -> None:
     physical_link_id = forward.metadata.get("physical_link_id", forward.link_id)
     forward.metadata["physical_link_id"] = physical_link_id
     reverse.metadata["physical_link_id"] = physical_link_id
@@ -25,20 +25,6 @@ def _add_bidirectional_link(links: dict[str, Link], forward: Link, reverse: Link
 
 
 def build_scenario() -> Scenario:
-    """
-    Build a small multi-layer network using the corrected source labels.
-
-    HAP-GS nodes/links follow the HAP-QKD data style:
-      gs(lg, la, N_RX, N_TX, A_MAX)
-      hap(lg[t], la[t], H[t], N_RX, N_TX, A_MAX)
-      link(n1, n2, V[t], W[t], K_MAX[t])
-
-    SAT-GS links are represented as satellite-QKD capacity traces.
-
-    SAT-HAP links are structural placeholders because neither source repository
-    currently provides a complete SAT-HAP physical/SKR model.
-    """
-
     time_slots = [0, 1, 2, 3]
 
     nodes = {
@@ -83,9 +69,8 @@ def build_scenario() -> Scenario:
         ),
     }
 
-    links: dict[str, Link] = {}
+    links: dict[str, BaseLink] = {}
 
-    # SAT-GS: source model exists in zhengzhang1106/satellite-QKD.
     sat_timmins = {0: 1200.0, 1: 900.0, 2: 300.0, 3: 0.0}
     sat_iroquois = {0: 0.0, 1: 700.0, 2: 950.0, 3: 500.0}
     _add_bidirectional_link(
@@ -99,7 +84,6 @@ def build_scenario() -> Scenario:
         build_sat_gs_link("L_GS_IROQUOIS_TO_SAT1", "GS_IROQUOIS", "SAT_1", 570.0, sat_iroquois),
     )
 
-    # HAP-GS: source model exists in zhengzhang1106/HAP-QKD.
     hap_timmins = {0: 1500.0, 1: 1450.0, 2: 1300.0, 3: 1100.0}
     hap_iroquois = {0: 900.0, 1: 1200.0, 2: 1400.0, 3: 1300.0}
     _add_bidirectional_link(
@@ -113,7 +97,6 @@ def build_scenario() -> Scenario:
         build_hap_gs_link("L_GS_IROQUOIS_TO_HAP1", "GS_IROQUOIS", "HAP_1", 35.0, hap_iroquois),
     )
 
-    # SAT-HAP: structural placeholder until a dedicated physical/SKR model is added.
     sat_hap = {0: 600.0, 1: 650.0, 2: 400.0, 3: 0.0}
     _add_bidirectional_link(
         links,
