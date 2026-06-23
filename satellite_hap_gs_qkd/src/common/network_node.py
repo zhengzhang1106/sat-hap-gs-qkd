@@ -1,28 +1,22 @@
-from __future__ import annotations
+"""Compatibility exports for node models.
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+New code should import from ``entities.nodes``.
+"""
 
-from common.network_types import NodeId, NodeType, Position
+from entities.nodes.air_platform import HighAltitudePlatform
+from entities.nodes.base_node import BaseNode, Position
+from entities.nodes.ground_station import GroundStation
+from entities.nodes.satellite import Satellite
 
+Node = BaseNode
+HAP = HighAltitudePlatform
 
-@dataclass
-class Node:
-    node_id: NodeId
-    node_type: NodeType
-    position: Optional[Position] = None
-    rx_tx_limit: int = 1
-    rx_limit: Optional[int] = None
-    tx_limit: Optional[int] = None
-    storage_capacity: float = 0.0
-    status: str = "active"
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def is_available(self) -> bool:
-        return self.status == "active"
-
-    def get_rx_limit(self) -> int:
-        return self.rx_limit if self.rx_limit is not None else self.rx_tx_limit
-
-    def get_tx_limit(self) -> int:
-        return self.tx_limit if self.tx_limit is not None else self.rx_tx_limit
+__all__ = [
+    "BaseNode",
+    "GroundStation",
+    "HAP",
+    "HighAltitudePlatform",
+    "Node",
+    "Position",
+    "Satellite",
+]
